@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from models import Base
 
 engine = create_engine("sqlite:///todo.db", echo=True)
-#Creates an engine (an sql file - todo.db) in which the databases will be stored
+# Creates an engine (an sql file - todo.db) in which the databases will be stored
 
 SessionLocal = sessionmaker(bind=engine) #This creates a 'factory' for sessions 
 
