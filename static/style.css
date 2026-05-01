@@ -1,0 +1,11 @@
+
+.modal {
+    display: none; /* This hides it by default */
+    position: relative; 
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 15%; 
+    height: 100%; 
+    background-color: rgba(16, 221, 26, 0.4); /* Dimmed background */
+}
