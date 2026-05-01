@@ -42,7 +42,7 @@
                 <h2>Your Tasks</h2>
                 {% if tasks %}
                     {% for task in tasks %}
-                        <div class="task-card" style="border-left: 5px solid {% if task.priority == 3 %}red{% elif task.priority == 2 %}orange{% else %}green{% endif %}; padding: 7px; margin-bottom: 20px; background: #b9dded;border-radius: 10px;">
+                        <div class="task-card {% if task.isCompleted %}task-done{% endif %}" style="border-left: 5px solid {% if task.priority == 3 %}red{% elif task.priority == 2 %}orange{% else %}green{% endif %}; padding: 7px; margin-bottom: 20px; background: #b9dded;border-radius: 10px;">
                             <h2>Task: {{ task.content }}</h2>
                             <span class="badge-{{ task.priority_label.lower() }}">| Priority: {{ task.priority_label }} |</span>
                             <span class="badge-{{ task.priority_label.lower() }}">| Due Date: {{ task.due_date if task.due_date else "Unspecified"}} |</span>
