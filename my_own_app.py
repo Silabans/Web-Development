@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
+from sqlalchemy import desc
 from database import SessionLocal
 from models import User, Task
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -25,12 +26,11 @@ def login():
         db_session = SessionLocal()
         user = db_session.query(User).filter_by(username=username).first()
 
-        if user:
-            if user.password == password:
-                session['user_id'] = user.id
-                db_session.close()
-                #print(f"Welcome back, {username}!")
-                return redirect(url_for('dashboard'))
+        if user and check_password_hash(user.password, password):
+            session['user_id'] = user.id
+            db_session.close()
+            #print(f"Welcome back, {username}!")
+            return redirect(url_for('dashboard'))
         
         db_session.close()
         return """Invalid credentials!
@@ -53,7 +53,9 @@ def register():
                 db_session.close()
                 return "Username already taken!"
             
-            new_user = User(username=username, password=password)
+            new_user = User(
+                username=username,
+                password=generate_password_hash(password, method='pbkdf2:sha256'))
             
             try:
                 db_session.add(new_user)
@@ -130,7 +132,7 @@ def dashboard():
     with SessionLocal() as local_session:
         # makes a query to the database of the task class of the current session, 
         # returning all task objects associated with the user_id
-        tasks = local_session.query(Task).filter_by(user_id=user_id).all()
+        tasks = local_session.query(Task).filter_by(user_id=user_id).order_by(Task.isCompleted, desc(Task.priority), desc(Task.id)).all()
         return render_template('dashboard.html', tasks=tasks)
 
 @app.route('/logout')
