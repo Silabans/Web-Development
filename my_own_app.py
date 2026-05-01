@@ -92,6 +92,34 @@ def add_task():
     
     return redirect(url_for('dashboard'))
 
+@app.route('/delete_task/<int:task_id>', methods=["POST"])
+def delete_task(task_id):
+
+    with SessionLocal() as db_session:
+        task_to_delete = db_session.get(Task, task_id)
+        try:
+            db_session.delete(task_to_delete)
+            db_session.commit()
+            return redirect(url_for('dashboard'))
+        except Exception as e:
+            return f"There was a problem in deleting the task: {e}"
+        
+    
+@app.route('/update_task/<int:task_id>', methods=["POST"])
+def update_task(task_id):
+    with SessionLocal() as db_session:
+        task = db_session.get(Task, task_id)
+        try:
+            if task:
+                task.isCompleted = not task.isCompleted
+                db_session.commit()
+        except Exception as e:
+            return f"Something went wrong: {e}"
+        
+        return redirect(url_for('dashboard'))
+
+
+
 @app.route('/dashboard', methods=["GET", "POST"])
 def dashboard():
     if 'user_id' not in session:
