@@ -33,42 +33,12 @@
                             <p>No tasks yet. Take a breather!</p>
                         {% endif %}
                     </div>
-
+                </div>
                 <div class="timer-section">
                     <div id="timer-display">25:00</div>
                     <button onclick="startTimer()">Start</button>
                     <button onclick="resetTimer()">Reset</button>
                 </div>
-            </div>
-
-            <div id="taskModal" class="modal">
-                <form action="/add" method="POST" class="task-form">
-                    <h2>New Task</h2>
-
-                    <div>
-                        <label for="content">Task Content</label>
-                        <input type="text" name="content" placeholder="e.g. Finish Flask UI" required>
-                    </div>
-                    
-                    <div>
-                        <label for="priority">Level of Priority</label>
-                        <select name="priority" id="priority">
-                            <option value="1">Low</option>
-                            <option value="2">Medium</option>
-                            <option value="3">High</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="due_date">Due Date</label>
-                        <input type="date" name="due_date">
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="button" onclick="closeModal()">Cancel</button>
-                        <button type="submit" class="primary-button">Create Task</button>
-                    </div>
-                </form>
             </div>
 
             <script>
@@ -110,6 +80,36 @@
                     updateDisplay()
                 }
             </script>
+
+            <div id="taskModal" class="modal">
+                <form action="/add" method="POST" class="task-form">
+                    <h2>New Task</h2>
+
+                    <div>
+                        <label for="content">Task Content</label>
+                        <input type="text" name="content" placeholder="e.g. Finish Flask UI" required>
+                    </div>
+                    
+                    <div>
+                        <label for="priority">Level of Priority</label>
+                        <select name="priority" id="priority">
+                            <option value="1">Low</option>
+                            <option value="2">Medium</option>
+                            <option value="3">High</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="due_date">Due Date</label>
+                        <input type="date" name="due_date">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="primary-button">Create Task</button>
+                    </div>
+                </form>
+            </div>
 
         </body>
     </html>
