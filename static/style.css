@@ -1,16 +1,60 @@
+.dashboard-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px;
+}
+
+.task-section {
+    flex: 2;
+}
+
 .modal {
     display: none; /* This hides it by default */
-    position: relative; 
-    z-index: 1; 
+    position: fixed; 
+    z-index: 100; 
     left: 0;
     top: 0;
-    width: 15%; 
+    width: 100%; 
     height: 100%; 
-    background-color: rgba(16, 221, 26, 0.4); /* Dimmed background */
+    background-color: rgba(2, 2, 2, 0.5); /* Dimmed background */
+}
+
+.task-form {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 15px;
+    width: 400px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0, 0.3);
 }
 
 .task-done {
     opacity: 0.6;
     text-decoration:line-through;
     background: #696767 !important;
+}
+
+.task-card {
+    width: clamp(400px, 90%, 720px)
+}   
+
+.timer-section {
+    flex: 1;
+    position: sticky;
+    z-index: 2;
+    top: 20px;
+    margin-left: 20px;
+    padding: 20px;
+    border-radius: 15px;
+    background-color:rgba(3, 60, 6, 0.1);
+    text-align: center;
+    border: 2px solid #033e06;
+}
+
+#timer-display {
+    font-size: 3rem;
+    font-weight:bold;
+    margin-bottom: 10px
 }
