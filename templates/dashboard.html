@@ -15,11 +15,11 @@
                         <h2>Your Tasks</h2>
                         {% if tasks %}
                             {% for task in tasks %}
-                                <div class="task-card {% if task.isCompleted %}task-done{% endif %}" style="border-left: 5px solid {% if task.priority == 3 %}red{% elif task.priority == 2 %}orange{% else %}green{% endif %}; padding: 7px; margin-bottom: 20px; background: #b9dded;border-radius: 10px;">
+                                <div class="task-card priority-{{ task.priority_label.lower() }} {% if task.isCompleted %}task-done{% endif %} {% if task.is_overdue %}task-overdue{% endif %}">
                                     <h2>Task: {{ task.content }}</h2>
-                                    <span class="badge-{{ task.priority_label.lower() }}">| Priority: {{ task.priority_label }} |</span>
-                                    <span class="badge-{{ task.priority_label.lower() }}">| Due Date: {{ task.due_date if task.due_date else "Unspecified"}} |</span>
-                                    <span class="badge-{{ task.priority_label.lower() }}">| Status: {{ "Done" if task.isCompleted else "Pending"}} |</span>
+                                    <span>| Priority: {{ task.priority_label }} |</span>
+                                    <span>| Due Date: {{ task.due_date if task.due_date else "Unspecified"}} |</span>
+                                    <span>| Status: {{ "Done" if task.isCompleted else ("Overdue!" if task.is_overdue else "Pending")}} |</span>
                                     <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST", style="display:inline;">
                                         <p></p>
                                         <button type="submit" onclick="return confirm('Are you sure in deleting this task?')">Delete</button>
@@ -48,7 +48,37 @@
                 </div>
             </div>
 
-            <script>
+            <div id="taskModal" class="modal">
+                <form action="/add" method="POST" class="task-form">
+                    <h2>New Task</h2>
+
+                    <div>
+                        <label for="content">Task Content</label>
+                        <input type="text" name="content" placeholder="e.g. Finish Flask UI" required>
+                    </div>
+                    
+                    <div>
+                        <label for="priority">Level of Priority</label>
+                        <select name="priority" id="priority">
+                            <option value="1">Low</option>
+                            <option value="2">Medium</option>
+                            <option value="3">High</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="due_date">Due Date</label>
+                        <input type="date" name="due_date">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="primary-button">Create Task</button>
+                    </div>
+                </form>
+            </div>
+
+                        <script>
                 function closeModal() {
                     document.getElementById('taskModal').style.display = 'none'
                 }
@@ -95,40 +125,10 @@
                 function resetTimer() {
                     clearInterval(timerInterval);
                     timerInterval = null;
-                    timeLeft = 1500;
+                    timeLeft = {{ user.last_timer }} * 60;
                     updateDisplay()
                 }
             </script>
-
-            <div id="taskModal" class="modal">
-                <form action="/add" method="POST" class="task-form">
-                    <h2>New Task</h2>
-
-                    <div>
-                        <label for="content">Task Content</label>
-                        <input type="text" name="content" placeholder="e.g. Finish Flask UI" required>
-                    </div>
-                    
-                    <div>
-                        <label for="priority">Level of Priority</label>
-                        <select name="priority" id="priority">
-                            <option value="1">Low</option>
-                            <option value="2">Medium</option>
-                            <option value="3">High</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="due_date">Due Date</label>
-                        <input type="date" name="due_date">
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="button" onclick="closeModal()">Cancel</button>
-                        <button type="submit" class="primary-button">Create Task</button>
-                    </div>
-                </form>
-            </div>
 
         </body>
     </html>

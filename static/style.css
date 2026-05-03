@@ -12,6 +12,22 @@
     flex: 0 0 60%;
 }
 
+.task-card { background-color: lightblue; border-radius: 10px; padding: 15px; margin-bottom: 12px;}
+.priority-high { border-left: 5px solid red }
+.priority-medium { border-left: 5px solid orange }
+.priority-low { border-left: 5px solid greenyellow }
+
+.task-done {
+    opacity: 0.6;
+    text-decoration:line-through;
+    background: #696767 !important;
+}
+
+.task-overdue {
+    background-color: rgba(255, 166, 0, 0.954); 
+}
+
+
 .modal {
     display: none; /* This hides it by default */
     position: fixed; 
@@ -30,12 +46,6 @@
     border-radius: 15px;
     width: 400px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0, 0.3);
-}
-
-.task-done {
-    opacity: 0.6;
-    text-decoration:line-through;
-    background: #696767 !important;
 }
 
 .task-card {
