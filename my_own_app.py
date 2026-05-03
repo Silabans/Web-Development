@@ -120,7 +120,20 @@ def update_task(task_id):
         
         return redirect(url_for('dashboard'))
 
+@app.route('update_last_timer', methods=["POST"])
+def update_timer_pref():
+    if 'user_id' not in session:
+        return "Unauthorized", 401
+    
+    new_pref = request.json.get('minutes')
+    user_id = session['user_id']
 
+    with SessionLocal() as db_session:
+        user = db_session.query(User).filter_by(id=user_id).first()
+        if user:
+            user.last_timer = new_pref
+            db_session.commit()
+    return "Success", 200
 
 @app.route('/dashboard', methods=["GET", "POST"])
 def dashboard():

@@ -13,6 +13,7 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
 
     tasks: Mapped[List["Task"]] = relationship(back_populates="owner")
+    last_timer: Mapped[int] = mapped_column(default=25)
 
 
 class Task(Base):
