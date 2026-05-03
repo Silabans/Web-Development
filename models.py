@@ -1,6 +1,7 @@
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
 from typing import List
+from datetime import date
 
 class Base(DeclarativeBase):
     pass
@@ -18,13 +19,17 @@ class User(Base):
 
 class Task(Base):
     __tablename__ = "task"
+    is_overdue: bool = False
+
     id: Mapped[int] = mapped_column(primary_key=True)
     
     user_id: Mapped[int] = mapped_column(ForeignKey("user_account.id"))
     content: Mapped[str] = mapped_column(nullable=False) # stores the description ofthe task
     priority: Mapped[int] = mapped_column(nullable=True) # stores 1, 2, 3 (priority values)
-    due_date: Mapped[str] = mapped_column(nullable=True) # stores the due date
+
+    due_date: Mapped[date] = mapped_column(nullable=True) # stores the due date
     isCompleted: Mapped[bool] = mapped_column(default=False) # marks the completion of the task
+
 
     @property
     def priority_label(self):
