@@ -3,6 +3,7 @@ from sqlalchemy import desc
 from database import SessionLocal
 from models import User, Task
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import date
 
 app = Flask(__name__)
 app.secret_key = "super-secret-app-do-not-share"
@@ -78,7 +79,8 @@ def add_task():
     
     content = request.form.get("content")
     priority = request.form.get("priority")
-    due_date = request.form.get("due_date")
+    due_date_str = request.form.get("due_date")
+    due_date = date.fromisoformat(due_date_str) if due_date_str else None
     if not content:
         return "Task content cannot be empty!", 400
     
@@ -120,7 +122,7 @@ def update_task(task_id):
         
         return redirect(url_for('dashboard'))
 
-@app.route('update_last_timer', methods=["POST"])
+@app.route('/update_last_timer', methods=["POST"])
 def update_timer_pref():
     if 'user_id' not in session:
         return "Unauthorized", 401
@@ -142,11 +144,17 @@ def dashboard():
     
     user_id = session['user_id']
 
-    with SessionLocal() as local_session:
+    with SessionLocal() as db_session:
         # makes a query to the database of the task class of the current session, 
         # returning all task objects associated with the user_id
-        tasks = local_session.query(Task).filter_by(user_id=user_id).order_by(Task.isCompleted, desc(Task.priority), desc(Task.id)).all()
-        return render_template('dashboard.html', tasks=tasks)
+        today = date.today()
+        tasks = db_session.query(Task).filter_by(user_id=user_id).order_by(Task.isCompleted, desc(Task.priority), Task.due_date.nulls_last(), desc(Task.id)).all()
+        user = db_session.query(User).filter_by(id=user_id).first()
+
+        for task in tasks:
+            task.is_overdue = task.due_date and task.due_date < today
+
+        return render_template('dashboard.html', tasks=tasks, user=user, today=today)
 
 @app.route('/logout')
 def logout():
