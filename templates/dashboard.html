@@ -4,11 +4,20 @@
             <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         </head>
         <body>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-container">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
 
             <div class="dashboard-container">
                 <div class="task-section">
                     <div>
-                        <button type="button" onclick='openModal()'>New Task</button>
+                        <button type="button" onclick='openModal("taskModal")'>New Task</button>
                     </div>
 
                     <div>
@@ -20,9 +29,12 @@
                                     <span>| Priority: {{ task.priority_label }} |</span>
                                     <span>| Due Date: {{ task.due_date if task.due_date else "Unspecified"}} |</span>
                                     <span>| Status: {{ "Done" if task.isCompleted else ("Overdue!" if task.is_overdue else "Pending")}} |</span>
-                                    <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST", style="display:inline;">
+                                    <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST" style="display:inline;">
                                         <p></p>
-                                        <button type="submit" onclick="return confirm('Are you sure in deleting this task?')">Delete</button>
+                                        <button type="submit" onclick="return confirm('Are you sure in deleting this task?')">  Delete  </button>
+                                    </form>
+                                    <form action="{{ url_for('edit_task', task_id=task.id) }}" method="POST" style="display:inline;">
+                                        <button type="button" onclick='openModal("editModal-{{ task.id }}")'>  Edit  </button>
                                     </form>
                                     <form action="{{ url_for('update_task', task_id=task.id) }}" method="POST" style="display:inline;">
                                         <button type="submit">Update Completion</button>
@@ -38,13 +50,15 @@
                     <div id="timer-display">
                         <span id="minutes">{{ user.last_timer }}</span>:<span id="seconds">00</span>
                     </div>
-                    <div class="timer-controls">
-                        <button onclick="setTimer(25)">25m</button>
-                        <button onclick="setTimer(50)">50m</button>
-                        <button onclick="setTimer(90)">90m</button>
+                    <div class="timer-presets">
+                        <button onclick="setTimer(25)"> 25m </button>
+                        <button onclick="setTimer(50)"> 50m </button>
+                        <button onclick="setTimer(90)"> 90m </button>
                     </div>
-                    <button onclick="startTimer()">Start</button>
-                    <button onclick="resetTimer()">Reset</button>
+                    <div class="timer-controls">
+                        <button onclick="startTimer()"> Start </button>
+                        <button onclick="resetTimer()"> Reset </button>
+                    </div>
                 </div>
             </div>
 
@@ -72,18 +86,51 @@
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" onclick="closeModal()">Cancel</button>
-                        <button type="submit" class="primary-button">Create Task</button>
+                        <button type="button" onclick="closeModal('taskModal')"> Cancel </button>
+                        <button type="submit" class="primary-button"> Create Task </button>
                     </div>
                 </form>
             </div>
+            {% if tasks %}
+                {% for task in tasks %}
+                    <div id="editModal-{{ task.id }}" class="modal">
+                        <form action="{{ url_for('edit_task', task_id=task.id) }}" method="POST" class="task-form">
+                            <h2>Edit Task</h2>
 
+                            <div>
+                                <label for="content">Task Content</label>
+                                <input type="text" name="content" value="{{ task.content }}" placeholder="e.g. Finish Flask UI" required>
+                            </div>
+                            
+                            <div>
+                                <label for="priority">Level of Priority</label>
+                                <select name="priority" id="priority">
+                                    <option value="1" {{ 'selected' if task.priority == 1 else '' }}>Low</option>
+                                    <option value="2" {{ 'selected' if task.priority == 2 else '' }}>Medium</option>
+                                    <option value="3" {{ 'selected' if task.priority == 3 else '' }}>High</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="due_date">Due Date</label>
+                                <input type="date" value="{{ task.due_date }}" name="due_date">
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" onclick="closeModal('editModal-{{ task.id }}')"> Cancel </button>
+                                <button type="submit" class="primary-button"> Save </button>
+                            </div>
+                        </form>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
                         <script>
-                function closeModal() {
-                    document.getElementById('taskModal').style.display = 'none'
+                function closeModal(modalId) {
+                    document.getElementById(modalId).style.display = 'none'
                 }
-                function openModal() {
-                    document.getElementById('taskModal').style.display = 'block'
+                function openModal(modalId) {
+                    document.getElementById(modalId).style.display = 'block'
                 }
 
                 let timeLeft = {{ user.last_timer }} * 60;

@@ -24,18 +24,17 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        db_session = SessionLocal()
-        user = db_session.query(User).filter_by(username=username).first()
+        with SessionLocal() as db_session:
+            user = db_session.query(User).filter_by(username=username).first()
 
-        if user and check_password_hash(user.password, password):
-            session['user_id'] = user.id
-            db_session.close()
-            #print(f"Welcome back, {username}!")
-            return redirect(url_for('dashboard'))
-        
-        db_session.close()
-        return """Invalid credentials!
-        Note: if you've never created an account before click 'Register' down below!""" 
+            if user and check_password_hash(user.password, password):
+                session['user_id'] = user.id
+                db_session.close()
+                flash(f"Welcome back {username}!", "success")
+                return redirect(url_for('dashboard'))
+            else:
+                flash("Passwords do not match", "error")
+                return "Invalid credentials!\nNote: if you've never created an account before click 'Register' down below!"
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -96,8 +95,37 @@ def add_task():
     
     return redirect(url_for('dashboard'))
 
+@app.route('/edit_task/<int:task_id>', methods=["POST"])
+def edit_task(task_id):
+    if "user_id" not in session:
+        return "Unauthorized", 404
+    
+    content = request.form.get("content")
+    priority = request.form.get("priority")
+    due_date_str = request.form.get("due_date")
+    due_date = date.fromisoformat(due_date_str) if due_date_str else None
+
+    
+
+    with SessionLocal() as db_session:
+        task_to_edit = db_session.get(Task, task_id)
+        try:
+            task_to_edit.content = content
+            task_to_edit.priority = priority
+            task_to_edit.due_date = due_date
+            db_session.commit()
+        except Exception as e:
+            db_session.rollback()
+            return f"An error occurred: {e}"
+        
+    return redirect(url_for('dashboard'))
+            
+
+
 @app.route('/delete_task/<int:task_id>', methods=["POST"])
 def delete_task(task_id):
+    if 'user_id' not in session:
+        return "Unauthorized", 404
 
     with SessionLocal() as db_session:
         task_to_delete = db_session.get(Task, task_id)
@@ -111,6 +139,9 @@ def delete_task(task_id):
     
 @app.route('/update_task/<int:task_id>', methods=["POST"])
 def update_task(task_id):
+    if 'user_id' not in session:
+        return 'Unauthorized', 404
+
     with SessionLocal() as db_session:
         task = db_session.get(Task, task_id)
         try:
