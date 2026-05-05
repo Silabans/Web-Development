@@ -18,18 +18,17 @@
             <div class="dashboard-container">
                 <div class="task-section">
                     <div>
-                        <button class="btn" type="button" onclick='openModal("taskModal")'>New Task</button>
-                    </div>
-
-                    <div>
-                        <div class="main-text"><h1>Your Tasks</h1></div>
+                        <div id="task-heading" class="main-text">
+                            <span>Your Tasks</span>
+                            <button id="new-task-btn" type="button" onclick='openModal("taskModal")'>New Task</button>
+                        </div>
                         {% if tasks %}
                             {% for task in tasks %}
                                 <div class="task-card priority-{{ task.priority_label.lower() }} {% if task.isCompleted %}task-done{% endif %} {% if task.is_overdue %}task-overdue{% endif %}">
                                     <h2>Task: {{ task.content }}</h2>
-                                    <span>| Priority: {{ task.priority_label }} |</span>
-                                    <span>| Due Date: {{ task.due_date if task.due_date else "Unspecified"}} |</span>
-                                    <span>| Status: {{ "Done" if task.isCompleted else ("Overdue!" if task.is_overdue else "Pending")}} |</span>
+                                    <span>| Priority: {{ task.priority_label }} </span>
+                                    <span>| Due Date: {{ task.due_date if task.due_date else "Unspecified"}} </span>
+                                    <span>| Status: {{ "Done" if task.isCompleted else ("Overdue!" if task.is_overdue else "Pending")}} </span>
                                     <div class="task-actions">
                                         <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST">
                                             <button class='btn' type="submit" onclick="return confirm('Are you sure in deleting this task?')">  Delete  </button>
