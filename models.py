@@ -29,6 +29,7 @@ class Task(Base):
 
     due_date: Mapped[date] = mapped_column(nullable=True) # stores the due date
     isCompleted: Mapped[bool] = mapped_column(default=False) # marks the completion of the task
+    created_at: Mapped[date] = mapped_column(nullable=False)
 
 
     @property

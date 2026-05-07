@@ -4,6 +4,7 @@ from database import SessionLocal
 from models import User, Task
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date
+from analytics import build_dataframe, chart_priority, chart_week
 
 app = Flask(__name__)
 app.secret_key = "super-secret-app-do-not-share"
@@ -80,13 +81,13 @@ def add_task():
     priority = request.form.get("priority")
     due_date_str = request.form.get("due_date")
     due_date = date.fromisoformat(due_date_str) if due_date_str else None
+    created_at = date.today()
     if not content:
         return "Task content cannot be empty!", 400
     
     with SessionLocal() as db_session:
         try:
-            new_task = Task(content=content, priority=int(priority) if priority else 1, due_date=due_date, user_id=user_id)
-            
+            new_task = Task(content=content, priority=int(priority) if priority else 1, due_date=due_date, created_at=created_at, user_id=user_id)
             db_session.add(new_task)
             db_session.commit()
         except Exception as e:
@@ -193,9 +194,23 @@ def logout():
     session.pop('user_id', None)
     return redirect(url_for('login'))
 
+@app.route('/analytics')
+def analytics():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
 
-#@app.route('complete-task/<int:task-id>')
-
+    with SessionLocal() as db_session:
+        tasks = db_session.query(Task).filter_by(user_id=user_id).all()
+        df = build_dataframe(tasks)
+        chart1 = chart_priority(df)
+        chart2 = chart_week(df)
+        return render_template('analytics.html',
+                               chart_priority=chart1,
+                               chart_week=chart2
+                               )
+    ...
 
 if __name__ == "__main__":
     app.run(debug=True)
