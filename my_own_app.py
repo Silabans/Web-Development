@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from sqlalchemy import desc
 from database import SessionLocal
 from models import User, Task
@@ -99,14 +99,13 @@ def add_task():
 @app.route('/edit_task/<int:task_id>', methods=["POST"])
 def edit_task(task_id):
     if "user_id" not in session:
-        return "Unauthorized", 404
+        return jsonify({"error": "Not found"}), 404
     
     content = request.form.get("content")
     priority = request.form.get("priority")
     due_date_str = request.form.get("due_date")
+    # converts the date from isoformat string to an actual datetime object
     due_date = date.fromisoformat(due_date_str) if due_date_str else None
-
-    
 
     with SessionLocal() as db_session:
         # This ensures that the task retrieved is owned by the user by ensuring that user_id matches
@@ -116,54 +115,61 @@ def edit_task(task_id):
         # If the task does not exist or if it does not belong to the user (checked using user_id),
         # inform the user about unauthorized access / task not found.
         if not task:
-            return "Not found or unauthorized", 403
+            return jsonify({"error": "Not found or unauthorized"}), 403
         try:
             task.content = content
             task.priority = priority
             task.due_date = due_date
             db_session.commit()
+            return jsonify({
+                "success": True, 
+                "content": task.content, 
+                "priority": task.priority, 
+                "dueDate": str(task.due_date) if task.due_date else 'Unspecified',
+                "isOverdue": task.due_date and task.due_date < date.today()
+                })
         except Exception as e:
             db_session.rollback()
-            return f"An error occurred: {e}"
-        
-    return redirect(url_for('dashboard'))
-            
+            return jsonify({"error": str(e)}), 403     
 
 
 @app.route('/delete_task/<int:task_id>', methods=["POST"])
 def delete_task(task_id):
     if 'user_id' not in session:
-        return "Unauthorized", 404
+        return jsonify({"error": "Not found"}), 404
 
     with SessionLocal() as db_session:
         task = db_session.query(Task).filter_by(id=task_id, user_id=session['user_id']).first()
         if not task:
-            return "Not found or unauthorized", 403
+            return jsonify({"error":"Not found or unauthorized"}), 403
         try:
             db_session.delete(task)
             db_session.commit()
-            return redirect(url_for('dashboard'))
+            return jsonify({"success": True, "task_id": task_id})
         except Exception as e:
-            return f"There was a problem in deleting the task: {e}"
+            db_session.rollback()
+            return jsonify({"error": str(e)}), 500
         
     
 @app.route('/update_task/<int:task_id>', methods=["POST"])
 def update_task(task_id):
     if 'user_id' not in session:
-        return 'Unauthorized', 404
+        return jsonify({"error": "Not found"}), 404
 
     with SessionLocal() as db_session:
         task = db_session.query(Task).filter_by(id=task_id, user_id=session['user_id']).first()
         if not task:
-            return "Not found or unauthorized", 403
+            return jsonify({ "error": "Not found or unauthorized" }), 403
         try:
             if task:
                 task.isCompleted = not task.isCompleted
                 db_session.commit()
+                return jsonify({"success": True, "isCompleted": task.isCompleted})
         except Exception as e:
-            return f"Something went wrong: {e}"
+            db_session.rollback()
+            return jsonify({"error": str(e)}), 500
         
-        return redirect(url_for('dashboard'))
+        
 
 @app.route('/update_last_timer', methods=["POST"])
 def update_timer_pref():
