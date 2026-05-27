@@ -109,7 +109,12 @@ def edit_task(task_id):
     
 
     with SessionLocal() as db_session:
+        # This ensures that the task retrieved is owned by the user by ensuring that user_id matches
+        # the id logged into the session.
         task = db_session.query(Task).filter_by(id=task_id, user_id=session['user_id']).first()
+
+        # If the task does not exist or if it does not belong to the user (checked using user_id),
+        # inform the user about unauthorized access / task not found.
         if not task:
             return "Not found or unauthorized", 403
         try:
