@@ -17,6 +17,12 @@
     margin: 0;
 }
 
+.flash-container {
+    margin-top: 6px;
+    margin-left: 6px;
+    font-size: 1rem;
+}
+
 .btn {
     background: var(--accent-gradient-btn);
     color: white;

@@ -109,11 +109,13 @@ def edit_task(task_id):
     
 
     with SessionLocal() as db_session:
-        task_to_edit = db_session.get(Task, task_id)
+        task = db_session.query(Task).filter_by(id=task_id, user_id=session['user_id']).first()
+        if not task:
+            return "Not found or unauthorized", 403
         try:
-            task_to_edit.content = content
-            task_to_edit.priority = priority
-            task_to_edit.due_date = due_date
+            task.content = content
+            task.priority = priority
+            task.due_date = due_date
             db_session.commit()
         except Exception as e:
             db_session.rollback()
@@ -129,9 +131,11 @@ def delete_task(task_id):
         return "Unauthorized", 404
 
     with SessionLocal() as db_session:
-        task_to_delete = db_session.get(Task, task_id)
+        task = db_session.query(Task).filter_by(id=task_id, user_id=session['user_id']).first()
+        if not task:
+            return "Not found or unauthorized", 403
         try:
-            db_session.delete(task_to_delete)
+            db_session.delete(task)
             db_session.commit()
             return redirect(url_for('dashboard'))
         except Exception as e:
@@ -144,7 +148,9 @@ def update_task(task_id):
         return 'Unauthorized', 404
 
     with SessionLocal() as db_session:
-        task = db_session.get(Task, task_id)
+        task = db_session.query(Task).filter_by(id=task_id, user_id=session['user_id']).first()
+        if not task:
+            return "Not found or unauthorized", 403
         try:
             if task:
                 task.isCompleted = not task.isCompleted
