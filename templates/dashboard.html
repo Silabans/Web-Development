@@ -29,20 +29,14 @@
                         {% if tasks %}
                             {% for task in tasks %}
                                 <div class="task-card priority-{{ task.priority_label.lower() }} {% if task.isCompleted %}task-done{% endif %} {% if task.is_overdue %}task-overdue{% endif %}">
-                                    <h2>Task: {{ task.content }}</h2>
-                                    <span>| Priority: {{ task.priority_label }} </span>
-                                    <span>| Due Date: {{ task.due_date if task.due_date else "Unspecified"}} </span>
-                                    <span>| Status: {{ "Done" if task.isCompleted else ("Overdue!" if task.is_overdue else "Pending")}} </span>
+                                    <h2 class="task-content">Task: {{ task.content }}</h2>
+                                    <span class="task-priority">| Priority: {{ task.priority_label }} </span>
+                                    <span class="task-due">| Due Date: {{ task.due_date if task.due_date else "Unspecified"}} </span>
+                                    <span class="task-status">| Status: {{ "Done" if task.isCompleted else ("Overdue!" if task.is_overdue else "Pending")}} </span>
                                     <div class="task-actions">
-                                        <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST">
-                                            <button class='btn' type="submit" onclick="return confirm('Are you sure in deleting this task?')">  Delete  </button>
-                                        </form>
-                                        <form action="{{ url_for('edit_task', task_id=task.id) }}" method="POST">
-                                            <button class='btn' type="button" onclick='openModal("editModal-{{ task.id }}")'>  Edit  </button>
-                                        </form>
-                                        <form action="{{ url_for('update_task', task_id=task.id) }}" method="POST">
-                                            <button class='btn' type="submit">Update Completion</button>
-                                        </form>
+                                        <button class="btn" type='submit' onclick='deleteTask({{ task.id }}, this)'>Delete</button>
+                                        <button class='btn' type="button" onclick='openModal("editModal-{{ task.id }}")'>  Edit  </button>
+                                        <button class="btn" type="submit" onclick="updateTask({{ task.id }}, this)">Update Completion</button>
                                     </div>    
                                 </div>
                             {% endfor %}
@@ -99,7 +93,7 @@
             {% if tasks %}
                 {% for task in tasks %}
                     <div id="editModal-{{ task.id }}" class="modal">
-                        <form action="{{ url_for('edit_task', task_id=task.id) }}" method="POST" class="task-form">
+                        <div>
                             <h2>Edit Task</h2>
 
                             <div>
@@ -123,64 +117,20 @@
 
                             <div class="form-actions">
                                 <button class='btn' type="button" onclick="closeModal('editModal-{{ task.id }}')"> Cancel </button>
-                                <button class='btn' type="submit" class="primary-button"> Save </button>
+                                <button class='btn' type="button" class="primary-button" 
+                                onclick="editTask({{ task.id }}, this, document.getElementById('editModal-{{ task.id }}'))"> 
+                                Save 
+                            </button>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 {% endfor %}
             {% endif %}
             
-                        <script>
-                function closeModal(modalId) {
-                    document.getElementById(modalId).style.display = 'none'
-                }
-                function openModal(modalId) {
-                    document.getElementById(modalId).style.display = 'block'
-                }
-
-                let timeLeft = {{ user.last_timer }} * 60;
-                let timerInterval;
-
-                function updateDisplay() {
-                    const mins = Math.floor(timeLeft / 60)
-                    const secs = timeLeft % 60;
-                    document.getElementById('timer-display').innerText =
-                    `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                }
-
-                function setTimer(minutes){
-                    timeLeft = minutes * 60
-                    updateDisplay()
-
-                    // Save this choice to the database
-                    fetch('/update_last_timer', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ minutes: minutes })
-                    });
-                }
-                    
-                function startTimer() {
-                    if (timerInterval) return;
-
-                    timerInterval = setInterval(() => {
-                        if (timeLeft > 0) {
-                            timeLeft--;
-                            updateDisplay();
-                        } else {
-                            clearInterval(timerInterval);
-                            timerInterval = null;
-                            alert("Time for a break!");
-                        }
-                    }, 1000)
-                }
-                function resetTimer() {
-                    clearInterval(timerInterval);
-                    timerInterval = null;
-                    timeLeft = {{ user.last_timer }} * 60;
-                    updateDisplay()
-                }
+            <script>
+                const INITIAL_TIMER = {{ user.last_timer }};
             </script>
 
+            <script src="{{ url_for('static', filename='dashboard.js')  }}"></script>
         </body>
     </html>
