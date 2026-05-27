@@ -28,7 +28,7 @@
                         </div>
                         {% if tasks %}
                             {% for task in tasks %}
-                                <div class="task-card priority-{{ task.priority_label.lower() }} {% if task.isCompleted %}task-done{% endif %} {% if task.is_overdue %}task-overdue{% endif %}">
+                                <div data-task-id="{{ task.id }}" class="task-card priority-{{ task.priority_label.lower() }} {% if task.isCompleted %}task-done{% endif %} {% if task.is_overdue %}task-overdue{% endif %}">
                                     <h2 class="task-content">Task: {{ task.content }}</h2>
                                     <span class="task-priority">| Priority: {{ task.priority_label }} </span>
                                     <span class="task-due">| Due Date: {{ task.due_date if task.due_date else "Unspecified"}} </span>
@@ -93,7 +93,7 @@
             {% if tasks %}
                 {% for task in tasks %}
                     <div id="editModal-{{ task.id }}" class="modal">
-                        <div>
+                        <div class="task-form">
                             <h2>Edit Task</h2>
 
                             <div>
@@ -118,7 +118,7 @@
                             <div class="form-actions">
                                 <button class='btn' type="button" onclick="closeModal('editModal-{{ task.id }}')"> Cancel </button>
                                 <button class='btn' type="button" class="primary-button" 
-                                onclick="editTask({{ task.id }}, this, document.getElementById('editModal-{{ task.id }}'))"> 
+                                onclick="editTask({{ task.id }}, document.getElementById('editModal-{{ task.id }}'))"> 
                                 Save 
                             </button>
                             </div>

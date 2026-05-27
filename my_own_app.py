@@ -72,7 +72,7 @@ def register():
 @app.route('/add', methods=["POST"])
 def add_task():
     if 'user_id' not in session:
-        return redirect(url_for('login'))
+        return jsonify({"error": "Not found"}), 403
     
     user_id = session.get('user_id')
     # gets the user id of the current user
@@ -83,16 +83,23 @@ def add_task():
     due_date = date.fromisoformat(due_date_str) if due_date_str else None
     created_at = date.today()
     if not content:
-        return "Task content cannot be empty!", 400
+        return jsonify({"error": "Content cannot be empty!"}), 400
     
     with SessionLocal() as db_session:
         try:
             new_task = Task(content=content, priority=int(priority) if priority else 1, due_date=due_date, created_at=created_at, user_id=user_id)
             db_session.add(new_task)
             db_session.commit()
+            return jsonify({
+                "success": True,
+                "id": new_task.id
+                "content": new_task.content,
+                "dueDate": str(new_task.due_date) if new_task.due_date else None,
+                "isOverdue": False
+            })
         except Exception as e:
             db_session.rollback()
-            return f"An error occurred: {e}"
+            return jsonify({"error": str(e)}), 500
     
     return redirect(url_for('dashboard'))
 
@@ -125,7 +132,7 @@ def edit_task(task_id):
                 "success": True, 
                 "content": task.content, 
                 "priority": task.priority, 
-                "dueDate": str(task.due_date) if task.due_date else 'Unspecified',
+                "dueDate": "| Due Date: " + str(task.due_date) if task.due_date else 'Unspecified',
                 "isOverdue": task.due_date and task.due_date < date.today()
                 })
         except Exception as e:

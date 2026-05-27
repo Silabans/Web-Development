@@ -8,6 +8,11 @@ function openModal(modalId) {
 }
 
 // ======= TASK FUNCTIONS =======
+function addTask() {
+    
+}
+
+
 function deleteTask(taskId, btnElement) {
     if (!confirm('Are you sure want to delete this task?')) return;
 
@@ -58,7 +63,7 @@ function updateTask(taskId, btnElement) {
 
 // modalElement here means the function takes in the modal/form (where the user changes the values)
 // and then extracts the new values (for content, due date, and priority)
-function editTask(taskId, btnElement, modalElement) {
+function editTask(taskId, modalElement) {
     // 1. new keyword is needed when creating new instances of a class (allocating memory for the instance)
     // 2. FormData() mimics a html form being submitted, allowing us to send data via fetch
     // to update the UI of the task card
@@ -80,7 +85,7 @@ function editTask(taskId, btnElement, modalElement) {
     .then(data => {
         if (data.success) {
             // const because it doesn't the task card will always have the same id
-            const taskCard = btnElement.closest('.task-card');
+            const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
 
             taskCard.classList.toggle('task-overdue', data.isOverdue);
 
@@ -91,10 +96,18 @@ function editTask(taskId, btnElement, modalElement) {
             const priorityMap = { 1: 'Low', 2: 'Medium', 3: 'High'};
             const dueSpan = taskCard.querySelector('.task-due');
 
+            // removes the old priority and add the new one depending on the selected priority
+            taskCard.classList.remove('priority-high', 'priority-medium', 'priority-high');
+            taskCard.classList.add(`priority-${priorityMap[data.priority]}`);
+
             contentH.textContent = data.content;
             // ?? (nullish coalescing operator) => returns 'Not Set' only if the left side returns null/undefined
             prioritySpan.textContent = `| Priority: ${priorityMap[data.priority] ?? 'Not Set'}`;
             dueSpan.textContent = data.dueDate;
+
+            if (data.priority == 1) {
+                taskCard.classList.toggle()
+            }
 
             closeModal(`editModal-${taskId}`);
 
