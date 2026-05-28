@@ -1,9 +1,16 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from models import Base
+import os
 
-engine = create_engine("sqlite:///todo.db", echo=True)
-# Creates an engine (an sql file - todo.db) in which the databases will be stored
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///todo.db")
+
+# Render sets DATABASE_URL with 'postgres://' but SQLAlchemy needs 'postgresql://'
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+engine = create_engine(DATABASE_URL, echo=True)
+# Creates an engine in which the databases will be stored
 
 SessionLocal = sessionmaker(bind=engine) #This creates a 'factory' for sessions 
 
