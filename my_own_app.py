@@ -5,9 +5,10 @@ from models import User, Task
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date
 from analytics import build_dataframe, chart_priority, chart_week
+import os
 
 app = Flask(__name__)
-app.secret_key = "super-secret-app-do-not-share"
+app.secret_key = os.environ.get("SECRET_KEY", "local-dev-fallback")
 # converts the key-value pair of user_id in 'session' into a scrambled string (a cookie),
 # which acts as an encrypted code to identify users with within their session.
 

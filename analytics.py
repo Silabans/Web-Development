@@ -7,7 +7,8 @@ def build_dataframe(tasks):
         'content': [t.content for t in tasks],
         'priority': [t.priority for t in tasks],
         'isCompleted': [t.isCompleted for t in tasks],
-        'created_at': [t.created_at for t in tasks]
+        'created_at': [t.created_at for t in tasks],
+        'due_date': [t.due_date for t in tasks]
     })
     return df
 
@@ -20,6 +21,8 @@ def encode_chart():
     return img_base64
 
 def chart_priority(df):
+    if df.empty: return None
+
     fig, ax = plt.subplots()
     df.groupby('priority')['isCompleted'].value_counts().plot(kind='bar', ax=ax, color=['#ca0303', '#ffd700', '#257963' ])
     ax.set_title('Tasks by Priority')
@@ -28,6 +31,8 @@ def chart_priority(df):
     return encode_chart()
 
 def chart_week(df):
+    if df.empty: return None
+
     fig, ax = plt.subplots()
     df['week'] = pd.to_datetime(df['created_at']).dt.isocalendar().week
     df.groupby(['week', 'priority'])['isCompleted'].sum().plot(kind='line', ax=ax, color=['#ca0303', '#ffd700', '#257963' ])
