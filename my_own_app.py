@@ -1,12 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from sqlalchemy import desc
-from database import SessionLocal
+from database import SessionLocal, create_db
 from models import User, Task
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date
 from analytics import build_dataframe, chart_priority, chart_week
 import os
 
+create_db()
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "local-dev-fallback")
 # converts the key-value pair of user_id in 'session' into a scrambled string (a cookie),
@@ -98,7 +99,7 @@ def add_task():
                 "priority": new_task.priority,
                 "dueDate": str(new_task.due_date) if new_task.due_date else None,
                 "isOverdue": False
-            })
+            }) # These are all JavaScript objects being sent to the fetch request
         except Exception as e:
             db_session.rollback()
             return jsonify({"error": str(e)}), 500

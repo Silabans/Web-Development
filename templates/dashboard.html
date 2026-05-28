@@ -35,7 +35,10 @@
                                     <span class="task-status">| Status: {{ "Done" if task.isCompleted else ("Overdue!" if task.is_overdue else "Pending")}} </span>
                                     <div class="task-actions">
                                         <button class="btn" onclick='deleteTask({{ task.id }}, this)'>Delete</button>
-                                        <button class='btn' type="button" onclick='openModal("editModal-{{ task.id }}")'>  Edit  </button>
+                                        <button class='btn' type="button" 
+                                            onclick='openEditModal({{ task.id }}, "{{ task.content }}", {{ task.priority }}, "{{ task.due_date if task.due_date else "" }}")'>  
+                                            Edit  
+                                        </button>
                                         <button class="btn" onclick="updateTask({{ task.id }}, this)">Update Completion</button>
                                     </div>    
                                 </div>
@@ -90,43 +93,37 @@
                     </div>
                 </form>
             </div>
-            {% if tasks %}
-                {% for task in tasks %}
-                    <div id="editModal-{{ task.id }}" class="modal">
-                        <div class="task-form">
-                            <h2>Edit Task</h2>
 
-                            <div>
-                                <label for="content">Task Content</label>
-                                <input type="text" name="content" value="{{ task.content }}" placeholder="e.g. Finish Flask UI" required>
-                            </div>
-                            
-                            <div>
-                                <label for="priority">Level of Priority</label>
-                                <select name="priority" id="priority">
-                                    <option value="1" {{ 'selected' if task.priority == 1 else '' }}>Low</option>
-                                    <option value="2" {{ 'selected' if task.priority == 2 else '' }}>Medium</option>
-                                    <option value="3" {{ 'selected' if task.priority == 3 else '' }}>High</option>
-                                </select>
-                            </div>
+            <div id="editModal" class="modal">
+                <div class="task-form">
+                    <h2>Edit Task</h2>
 
-                            <div>
-                                <label for="due_date">Due Date</label>
-                                <input type="date" value="{{ task.due_date }}" name="due_date">
-                            </div>
-
-                            <div class="form-actions">
-                                <button class='btn' type="button" onclick="closeModal('editModal-{{ task.id }}')"> Cancel </button>
-                                <button class='btn' type="button" class="primary-button" 
-                                onclick="editTask({{ task.id }}, document.getElementById('editModal-{{ task.id }}'))"> 
-                                Save 
-                            </button>
-                            </div>
-                        </div>
+                    <div>
+                        <label for="content">Task Content</label>
+                        <input type="text" id="edit-content" name="content" placeholder="e.g. Finish Flask UI" required>
                     </div>
-                {% endfor %}
-            {% endif %}
-            
+                    
+                    <div>
+                        <label for="priority">Level of Priority</label>
+                        <select name="priority" id="edit-priority">
+                            <option value="1">Low</option>
+                            <option value="2">Medium</option>
+                            <option value="3">High</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="due_date">Due Date</label>
+                        <input type="date" id="edit-due-date" name="due_date">
+                    </div>
+
+                    <div class="form-actions">
+                        <button class='btn' type="button" onclick="closeModal('editModal')"> Cancel </button>
+                        <button class='btn' type="button" class="primary-button" id="edit-save-btn"> Save </button>
+                    </div>
+                </div>
+            </div>
+
             <script>
                 const INITIAL_TIMER = {{ user.last_timer }};
             </script>
