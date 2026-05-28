@@ -92,8 +92,9 @@ def add_task():
             db_session.commit()
             return jsonify({
                 "success": True,
-                "id": new_task.id
+                "id": new_task.id,
                 "content": new_task.content,
+                "priority": new_task.priority,
                 "dueDate": str(new_task.due_date) if new_task.due_date else None,
                 "isOverdue": False
             })

@@ -8,8 +8,49 @@ function openModal(modalId) {
 }
 
 // ======= TASK FUNCTIONS =======
-function addTask() {
-    
+function addTask(formElement) {
+    // this sends a form to the flask api, which flask will read in request.form.get("due_date")
+    const formData = new FormData();
+    formData.append('content', formElement.querySelector('[name="content"]').value);
+    formData.append('priority', formElement.querySelector('[name="priority"]').value);
+    formData.append('due_date', formElement.querySelector('[name="due_date"]').value);
+
+    fetch('/add', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json()) // connects witht 'jsonify' in the routing file
+    .then(data => {
+        if (data.success) {
+            const priorityLabel = { 1: 'Low', 2: 'Medium', 3: 'High' }; // a map/dictionary
+            const label = priorityLabel[data.priority];
+            const name = label.toLowerCase();
+
+            const cardHTML = `
+            <div class="task-card priority-${label}" data-task-id="${data.id}">
+                <h2 class="task-content">Task: ${data.content}</h2>
+                <span class="task-priority">| Priority: ${label} </span>
+                <span class="task-due">| Due Date: ${data.dueDate ?? 'Unspecified'} </span> 
+                <span class="task-status">| Status: Pending </span>
+                <div class="task-actions">
+                    <button class="btn" onclick="deleteTask(${data.id}, this)">Delete</button>
+                    <button class="btn" onclick='openModal("editModal-${data.id}")'>Edit</button>
+                    <button class="btn" onclick='updateTask(${data.id}, this)'>Update Completion</button>
+                </div>
+            </div>` // if data it written, it refers to the jsonify data from flask
+
+            // Inject the cardHTML into the task list
+            // note: document => the whole html page (as a JavaScript object)
+            const taskList = document.querySelector('.task-section > div'); // > div gives us the first child of task-section that is a div
+            taskList.insertAdjacentHTML('beforeend', cardHTML) // places it at the end of the list
+            
+            closeModal('taskModal');
+            formElement.reset();
+        } else {
+            alert('Something went wrong: ' + data.error);
+        }
+    });
+
 }
 
 
@@ -56,7 +97,7 @@ function updateTask(taskId, btnElement) {
             statusSpan.textContent = `| Status: ${data.isCompleted ? 'Done' : 'Pending'}`;
 
         } else {
-            alert("something went wrong: " + data.error);
+            alert("something went wrong: " + data.error);''
         }
     })
     }
@@ -97,17 +138,13 @@ function editTask(taskId, modalElement) {
             const dueSpan = taskCard.querySelector('.task-due');
 
             // removes the old priority and add the new one depending on the selected priority
-            taskCard.classList.remove('priority-high', 'priority-medium', 'priority-high');
-            taskCard.classList.add(`priority-${priorityMap[data.priority]}`);
+            taskCard.classList.remove('priority-low', 'priority-medium', 'priority-high');
+            taskCard.classList.add(`priority-${priorityMap[data.priority].toLowerCase()}`);
 
             contentH.textContent = data.content;
             // ?? (nullish coalescing operator) => returns 'Not Set' only if the left side returns null/undefined
             prioritySpan.textContent = `| Priority: ${priorityMap[data.priority] ?? 'Not Set'}`;
             dueSpan.textContent = data.dueDate;
-
-            if (data.priority == 1) {
-                taskCard.classList.toggle()
-            }
 
             closeModal(`editModal-${taskId}`);
 
