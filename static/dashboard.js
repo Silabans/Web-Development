@@ -22,30 +22,8 @@ function addTask(formElement) {
     .then(response => response.json()) // connects witht 'jsonify' in the routing file
     .then(data => {
         if (data.success) {
-            const priorityLabel = { 1: 'Low', 2: 'Medium', 3: 'High' }; // a map/dictionary
-            const label = priorityLabel[data.priority];
-            const name = label.toLowerCase();
+            window.location.reload();
 
-            const cardHTML = `
-            <div class="task-card priority-${label}" data-task-id="${data.id}">
-                <h2 class="task-content">Task: ${data.content}</h2>
-                <span class="task-priority">| Priority: ${label} </span>
-                <span class="task-due">| Due Date: ${data.dueDate ?? 'Unspecified'} </span> 
-                <span class="task-status">| Status: Pending </span>
-                <div class="task-actions">
-                    <button class="btn" onclick="deleteTask(${data.id}, this)">Delete</button>
-                    <button class="btn" onclick='openModal("editModal-${data.id}")'>Edit</button>
-                    <button class="btn" onclick='updateTask(${data.id}, this)'>Update Completion</button>
-                </div>
-            </div>` // if data it written, it refers to the jsonify data from flask
-
-            // Inject the cardHTML into the task list
-            // note: document => the whole html page (as a JavaScript object)
-            const taskList = document.querySelector('.task-section > div'); // > div gives us the first child of task-section that is a div
-            taskList.insertAdjacentHTML('beforeend', cardHTML) // places it at the end of the list
-            
-            closeModal('taskModal');
-            formElement.reset();
         } else {
             alert('Something went wrong: ' + data.error);
         }
@@ -102,6 +80,20 @@ function updateTask(taskId, btnElement) {
     })
     }
 
+function openEditModal(taskId, content, priority, dueDate) {
+    // Populate the form fields with the task's current values
+    document.getElementById('edit-content').value = content;
+    document.getElementById('edit-priority').value = priority;
+    document.getElementById('edit-due-date').value = dueDate;
+
+    // Set the save button to call editTask with the task's id
+    document.getElementById('edit-save-btn').onclick = () => editTask(taskId, document.getElementById('editModal'));
+    // () => is a shorthand way to define a function
+    // it is used here as we want to CALL a function not RETURN the value of the function (None)
+
+    openModal('editModal');
+}
+
 // modalElement here means the function takes in the modal/form (where the user changes the values)
 // and then extracts the new values (for content, due date, and priority)
 function editTask(taskId, modalElement) {
@@ -146,7 +138,7 @@ function editTask(taskId, modalElement) {
             prioritySpan.textContent = `| Priority: ${priorityMap[data.priority] ?? 'Not Set'}`;
             dueSpan.textContent = data.dueDate;
 
-            closeModal(`editModal-${taskId}`);
+            closeModal('editModal');
 
         } else {
             alert("Something went wrong: " + data.error);
