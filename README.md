@@ -10,11 +10,11 @@ as well as HTML and CSS for the website user interface.
 * SQLAlchemy for constructing SQL queries and transforming python classes into SQL databases
 * HTML for handling the skeletal structure of the website UI
 * CSS for styling and polishing the look of the website UI
-* JavaScript (as part of the HTML framework) for logical flows on the website, such opening modals
+* JavaScript for logical flows on the website, such opening modals and task functions
 
 ## Status
 
-This project is still a work in progress, though a working version will most likely always be up and running.
+This project is still a work in progress, though a working version has been deployed.
 
 ### Current to-do list:
 * Adding a "Productivity Level" section to track the number of tasks completed
@@ -29,4 +29,5 @@ This project is still a work in progress, though a working version will most lik
   How it was solved: Ensuring that each element has the correct placement in the HTML framework and using CSS flexbox.
 * Insecure passwords.
   How it was solved: Doing password hashing werkzeug.security.
+* Migrating frontend structure to JavaScript from purely Flask
 
