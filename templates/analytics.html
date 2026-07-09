@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Analytics Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="analytics-container">
+        <h1>Your Productivity Analytics</h1>
+        <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+
+        <div style="width: 600px; margin: auto;">
+            <canvas id="priorityChart"></canvas>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='analytics.js') }}"></script>
+</body>
+</html>
