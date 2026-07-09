@@ -221,8 +221,16 @@ def logout():
     session.pop('user_id', None)
     return redirect(url_for('login'))
 
+
 @app.route('/analytics')
-def analytics():
+def analytics_page():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    return render_template("analytics.html")
+
+@app.route('/api/analytics-data')
+def analytics_data():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
@@ -230,14 +238,17 @@ def analytics():
 
     with SessionLocal() as db_session:
         tasks = db_session.query(Task).filter_by(user_id=user_id).all()
-        df = build_dataframe(tasks)
-        chart1 = chart_priority(df)
-        chart2 = chart_week(df)
-        return render_template('analytics.html',
-                               chart_priority=chart1,
-                               chart_week=chart2
-                               )
-    ...
+
+        payload = []
+        for task in tasks:
+            payload.append({
+                "content": task.content,
+                "created_at": task.created_at.isoformat(),
+                "isCompleted": task.isCompleted,
+                "due_date": task.due_date
+            })
+    
+    return jsonify(payload)
 
 if __name__ == "__main__":
     app.run(debug=True)
