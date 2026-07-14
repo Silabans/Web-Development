@@ -1,9 +1,27 @@
-body {
-    background-color: #900db8;
-    color: #9898a5e7;
+.index-body {
+    background-color: #1a1919;
+    color: #ffffffe7;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     margin: 0;
     padding: 2rem;
+    text-align: center;
+}
+.index-header {
+    margin: 6px 6px 6px;
+    text-align: center;
+    background: #222222;
+    border-radius: 20px;
+    border-width: 2px;
+    padding: 1rem;
+    box-shadow: 6px 6px 6px 6px #1a1212;
+}
+.about-wrapper {
+    max-width: 800px;
+    margin: 24px auto;
+    padding-left: 20px;
+    padding-right: 20px;
+    width: 100%;
+
 }
 
 
@@ -168,7 +186,7 @@ body {
 /* --- Analytics Dashboard Blueprint --- */
 
 /* Reset body styles for a dark, premium aesthetic */
-body {
+.analytics-body {
     background-color: #121214;
     color: #e1e1e6;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

@@ -10,7 +10,7 @@
                         }
                 </style>
         </head>
-        <body>
+        <body class="index-body">
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
                         <div class="flash-container">
@@ -20,10 +20,14 @@
                         </div>
                     {% endif %}
                 {% endwith %}
-                <form method="POST">
-                        <input type="text" name="username" placeholder="Username">
-                        <input type="password" name="password" placeholder="Password">
-                        <input type="submit" value="Login">
+                <form class="input-countainer" method="POST">
+                        <div>
+                                <input type="text" name="username" placeholder="Username">
+                                <input type="password" name="password" placeholder="Password">
+                        </div>
+                        <div>
+                                <input type="submit" value="Login">
+                        </div>
                 </form>
         </body>
 </html>
