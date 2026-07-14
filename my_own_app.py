@@ -245,7 +245,8 @@ def analytics_data():
                 "content": task.content,
                 "created_at": task.created_at.isoformat(),
                 "isCompleted": task.isCompleted,
-                "due_date": task.due_date
+                "due_date": task.due_date,
+                "priority": task.priority
             })
     
     return jsonify(payload)
