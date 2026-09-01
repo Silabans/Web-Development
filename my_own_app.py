@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import date
 from analytics import build_dataframe, chart_priority, chart_week
 import os
+from functools import wraps
 
 create_db()
 app = Flask(__name__)
@@ -13,9 +14,17 @@ app.secret_key = os.environ.get("SECRET_KEY", "local-dev-fallback")
 # converts the key-value pair of user_id in 'session' into a scrambled string (a cookie),
 # which acts as an encrypted code to identify users with within their session.
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user_id" not in session:
+                return jsonify({"error": "Not found"}), 404
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route('/')
 def home():
-    return  render_template('index.html')
+    return render_template('index.html')
 
 @app.route('/status')
 def status():
@@ -72,10 +81,8 @@ def register():
 
 
 @app.route('/add', methods=["POST"])
+@login_required
 def add_task():
-    if 'user_id' not in session:
-        return jsonify({"error": "Not found"}), 403
-    
     user_id = session.get('user_id')
     # gets the user id of the current user
     
@@ -107,10 +114,8 @@ def add_task():
     return redirect(url_for('dashboard'))
 
 @app.route('/edit_task/<int:task_id>', methods=["POST"])
+@login_required
 def edit_task(task_id):
-    if "user_id" not in session:
-        return jsonify({"error": "Not found"}), 404
-    
     content = request.form.get("content")
     priority = request.form.get("priority")
     due_date_str = request.form.get("due_date")
@@ -144,6 +149,7 @@ def edit_task(task_id):
 
 
 @app.route('/delete_task/<int:task_id>', methods=["POST"])
+@login_required
 def delete_task(task_id):
     if 'user_id' not in session:
         return jsonify({"error": "Not found"}), 404
@@ -162,6 +168,7 @@ def delete_task(task_id):
         
     
 @app.route('/update_task/<int:task_id>', methods=["POST"])
+@login_required
 def update_task(task_id):
     if 'user_id' not in session:
         return jsonify({"error": "Not found"}), 404
@@ -180,12 +187,9 @@ def update_task(task_id):
             return jsonify({"error": str(e)}), 500
         
         
-
 @app.route('/update_last_timer', methods=["POST"])
+@login_required
 def update_timer_pref():
-    if 'user_id' not in session:
-        return "Unauthorized", 401
-    
     new_pref = request.json.get('minutes')
     user_id = session['user_id']
 
@@ -197,10 +201,8 @@ def update_timer_pref():
     return "Success", 200
 
 @app.route('/dashboard', methods=["GET", "POST"])
+@login_required
 def dashboard():
-    if 'user_id' not in session:
-        return(redirect(url_for('login')))
-    
     user_id = session['user_id']
 
     with SessionLocal() as db_session:
@@ -221,19 +223,14 @@ def logout():
     session.pop('user_id', None)
     return redirect(url_for('login'))
 
-
 @app.route('/analytics')
+@login_required
 def analytics_page():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    
     return render_template("analytics.html")
 
 @app.route('/api/analytics-data')
+@login_required
 def analytics_data():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    
     user_id = session['user_id']
 
     with SessionLocal() as db_session:
